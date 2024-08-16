@@ -2,41 +2,86 @@ package Anubis
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io"
+	"os"
 	"os/exec"
 )
 
-type RunResult struct {
+type CommandRunner interface {
+	RunCommand(command *exec.Cmd) (RunOutput, error)
+}
+
+type LocalCmdRunner struct {
+	Input *os.File
+}
+
+func (lcr *LocalCmdRunner) RunCommand(command *exec.Cmd) (RunOutput, error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	rr := RunOutput{
+		ExitStatus: 0,
+		StdOut:     &stdout,
+		StdErr:     &stderr,
+	}
+
+	command.Stdin = lcr.Input
+	defer lcr.Input.Close()
+	command.Stdout = &stdout
+	command.Stderr = &stderr
+	err := command.Run()
+	if err != nil {
+		var exitError *exec.ExitError
+		if errors.As(err, &exitError) {
+			rr.ExitStatus = command.ProcessState.ExitCode()
+			return rr, err
+		}
+		return rr, err
+	}
+	command.Wait()
+
+	return rr, nil
+}
+
+type RunOutput struct {
 	ExitStatus int
 	StdOut     io.Reader
 	StdErr     io.Reader
 }
 
-type CodeRunner func(codeFile string) (RunResult, error)
-
-func Run(codeFile string) (RunResult, error) {
-	progLang, err := GetProgLang(codeFile)
-	if err != nil {
-		return RunResult{}, err
+func (rr *RunOutput) String() string {
+	outString := "Error Reading StdOut"
+	outBytes, err := io.ReadAll(rr.StdOut)
+	if err == nil {
+		outString = string(outBytes)
 	}
-	return progLang.Runner(codeFile)
+	errString := "Error Reading StdErr"
+	errBytes, err := io.ReadAll(rr.StdErr)
+	if err == nil {
+		errString = string(errBytes)
+	}
+
+	s := fmt.Sprintf("Exit Status: %d\nStdOut: %s\nStdErr:= %s", rr.ExitStatus, outString, errString)
+
+	return s
 }
 
-func PythonRunner(codeFile string) (RunResult, error) {
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
+type CodeRunner func(codeFile string, commandRunner CommandRunner) (RunOutput, error)
 
+func Run(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
+	progLang, err := GetProgLang(codeFile)
+	if err != nil {
+		fmt.Println(err.Error())
+		return RunOutput{}, err
+	}
+	return progLang.Runner(codeFile, commandRunner)
+}
+
+func PythonRunner(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
 	app := "python3"
 	command := exec.Command(app, codeFile)
-	command.Stdout = &stdout
-	command.Stderr = &stderr
-	rr := RunResult{}
-	err := command.Run()
-	if err != nil {
-		return RunResult{}, err
-	}
-
-	rr.StdOut = &stdout
-	rr.StdErr = &stderr
-	return rr, nil
+	rr, err := commandRunner.RunCommand(command)
+	return rr, err
 }
