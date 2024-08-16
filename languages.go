@@ -15,7 +15,7 @@ type ProgLang struct {
 var supportedFileTypes = map[string]ProgLang{
 	"c":   {Name: "C"},
 	"cpp": {Name: "C++"},
-	"py":  {Name: "Python"},
+	"py":  {Name: "Python", Runner: PythonRunner},
 }
 
 func GetProgLang(filePath string) (ProgLang, error) {

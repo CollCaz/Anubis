@@ -12,7 +12,7 @@ func TestGetProgLang(t *testing.T) {
 		file := "main." + ext
 		lang, err := GetProgLang(file)
 		assert.Nil(t, err)
-		assert.Equal(t, actualLang, lang, "Expected: %d, Got: %d", actualLang, lang)
+		assert.Equal(t, actualLang.Name, lang.Name, "Expected: %d, Got: %d", actualLang.Name, lang.Name)
 	}
 }
 
