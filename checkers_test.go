@@ -8,6 +8,7 @@ import (
 )
 
 func TestCheckCasePass(t *testing.T) {
+	t.Parallel()
 	expected := bytes.NewBuffer([]byte("1\n2\n3\n4\n5"))
 	actual := bytes.NewBuffer([]byte("1\n2\n3\n4\n5"))
 

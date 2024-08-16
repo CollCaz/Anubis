@@ -26,6 +26,7 @@ func TestGetProgLangErr(t *testing.T) {
 }
 
 func TestAddProgLang(t *testing.T) {
+	t.Parallel()
 	javaRunner := func(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
 		rr := RunOutput{
 			ExitStatus: 0,
