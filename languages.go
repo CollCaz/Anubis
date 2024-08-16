@@ -30,3 +30,11 @@ func GetProgLang(filePath string) (ProgLang, error) {
 
 	return prog, nil
 }
+
+func AddProgLang(name, extension string, runner CodeRunner) {
+	prog := ProgLang{
+		Name:   name,
+		Runner: runner,
+	}
+	supportedFileTypes[extension] = prog
+}
