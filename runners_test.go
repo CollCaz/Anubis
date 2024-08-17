@@ -32,6 +32,37 @@ func TestLocalCommandRunner(t *testing.T) {
 	require.Equal(t, "hello world", string(out))
 }
 
+func TestLocalIsolateRunner(t *testing.T) {
+	t.Parallel()
+	//fixme: find a better way of giving isolate
+	// the full path to files
+	dir, err := os.UserHomeDir()
+	require.Nil(t, err, err)
+	fileName := fmt.Sprintf("%s/test.txt", dir)
+
+	fmt.Println("FIX THIS")
+	t.FailNow()
+
+	file, err := os.Create(fileName)
+	defer os.Remove(fileName)
+	require.Nil(t, err, err)
+	file.WriteString("hello world")
+	file.Close()
+
+	f, err := os.Open(fileName)
+	require.Nil(t, err, err)
+
+	lir := LocalIsolateRunner{Input: f}
+	cmd := exec.Command("/bin/cat")
+	rr, err := lir.RunCommand(cmd)
+	fmt.Println(rr.StdErr)
+	require.Nil(t, err, err)
+	out, err := io.ReadAll(rr.StdOut)
+	require.Nil(t, err, err)
+	fmt.Println(rr.StdErr)
+	require.Equal(t, "hello world", string(out), cmd.String())
+}
+
 func TestLocalRunner(t *testing.T) {
 	t.Parallel()
 	filename := fmt.Sprintf("%s/AnubisRunnerTestHello.py", t.TempDir())

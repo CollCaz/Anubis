@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path"
 )
 
 type CommandRunner interface {
@@ -47,6 +48,51 @@ func (lcr *LocalCmdRunner) RunCommand(command *exec.Cmd) (RunOutput, error) {
 		return rr, err
 	}
 	command.Wait()
+
+	return rr, nil
+}
+
+type LocalIsolateRunner struct {
+	Input *os.File
+}
+
+func (lir *LocalIsolateRunner) SetInput(file *os.File) {
+	lir.Input = file
+}
+
+func (lir *LocalIsolateRunner) RunCommand(command *exec.Cmd) (RunOutput, error) {
+	dir := path.Dir(lir.Input.Name())
+	isolateCommand := exec.Command(
+		"isolate",
+		fmt.Sprintf("--dir=%s", dir),
+		"--run",
+		"--",
+	)
+	isolateCommand.Args = append(isolateCommand.Args, command.Args...)
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	rr := RunOutput{
+		ExitStatus: 0,
+		StdOut:     &stdout,
+		StdErr:     &stderr,
+	}
+
+	isolateCommand.Stdin = lir.Input
+	isolateCommand.Stdout = &stdout
+	isolateCommand.Stderr = &stderr
+
+	err := isolateCommand.Run()
+	if err != nil {
+		var exitError *exec.ExitError
+		if errors.As(err, &exitError) {
+			rr.ExitStatus = command.ProcessState.ExitCode()
+			return rr, err
+		}
+		return rr, err
+	}
+	isolateCommand.Wait()
 
 	return rr, nil
 }
