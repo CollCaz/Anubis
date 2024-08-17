@@ -50,14 +50,14 @@ func (n *noopLogHandler) Enabled(_ context.Context, l slog.Level) bool {
 	return false
 }
 
-func (n *noopLogHandler) Handle(ctx context.Context, l slog.Record) error {
+func (n *noopLogHandler) Handle(_ context.Context, _ slog.Record) error {
 	return nil
 }
 
-func (n *noopLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (n *noopLogHandler) WithAttrs(_ []slog.Attr) slog.Handler {
 	return &noopLogHandler{}
 }
 
-func (n *noopLogHandler) WithGroup(name string) slog.Handler {
+func (n *noopLogHandler) WithGroup(_ string) slog.Handler {
 	return &noopLogHandler{}
 }
