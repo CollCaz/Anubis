@@ -30,7 +30,7 @@ func NewAnubis(ac AnubisConfig) Anubis {
 	return a
 }
 
-func (a Anubis) NewSubmission(codeFilePath string, testCases TestCases) Submission {
+func (a *Anubis) NewSubmission(codeFilePath string, testCases TestCases) Submission {
 	if a.Logger == nil {
 		a.Logger = slog.New(&noopLogHandler{})
 	}
