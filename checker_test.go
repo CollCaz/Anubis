@@ -3,7 +3,6 @@ package Anubis
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"testing"
@@ -32,7 +31,7 @@ func createSubmission(t *testing.T) (Submission, func()) {
 	submission := Submission{
 		TestCases:     testCases,
 		CommandRunner: &LocalCmdRunner{},
-		Logger:        slog.New(slog.NewTextHandler(io.Discard, &slog.HandlerOptions{})),
+		Logger:        slog.New(&noopLogHandler{}),
 	}
 
 	clean := func() {
@@ -58,7 +57,7 @@ func TestCheckAllPass(t *testing.T) {
 	sub, clean := createSubmission(t)
 	sub.CodeFile = codeName
 	subOut, err := sub.CheckAll()
-	require.Nil(t, err, err)
+	require.Nil(t, err)
 	require.Equal(t, "AC", subOut.Status)
 
 	t.Cleanup(clean)
