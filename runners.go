@@ -11,10 +11,15 @@ import (
 
 type CommandRunner interface {
 	RunCommand(command *exec.Cmd) (RunOutput, error)
+	SetInput(file *os.File)
 }
 
 type LocalCmdRunner struct {
 	Input *os.File
+}
+
+func (lcr *LocalCmdRunner) SetInput(file *os.File) {
+	lcr.Input = file
 }
 
 func (lcr *LocalCmdRunner) RunCommand(command *exec.Cmd) (RunOutput, error) {

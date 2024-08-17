@@ -12,8 +12,9 @@ import (
 
 func TestLocalCommandRunner(t *testing.T) {
 	t.Parallel()
-	fileName := "test.txt"
+	fileName := fmt.Sprintf("%s/test.txt", t.TempDir())
 	file, err := os.Create(fileName)
+	defer os.Remove(fileName)
 	require.Nil(t, err)
 	file.WriteString("hello world")
 	file.Close()
@@ -32,7 +33,7 @@ func TestLocalCommandRunner(t *testing.T) {
 
 func TestLocalRunner(t *testing.T) {
 	t.Parallel()
-	filename := "AnubisRunnerTestHello.py"
+	filename := fmt.Sprintf("%s/AnubisRunnerTestHello.py", t.TempDir())
 	pyFile, err := os.Create(filename)
 	require.Nil(t, err)
 	_, err = pyFile.WriteString(`print(int(input())+20)`)
@@ -40,7 +41,7 @@ func TestLocalRunner(t *testing.T) {
 	defer os.Remove(filename)
 	require.Nil(t, err)
 
-	inputFileName := "AnubisRunnerTestHelloInput.txt"
+	inputFileName := fmt.Sprintf("%s/AnubisRunnerTestHelloInput.txt", t.TempDir())
 	inputFile, err := os.Create(inputFileName)
 	require.Nil(t, err)
 	_, err = inputFile.WriteString("400")
