@@ -3,6 +3,8 @@ package Anubis
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
 	"testing"
 
@@ -30,6 +32,7 @@ func createSubmission(t *testing.T) (Submission, func()) {
 	submission := Submission{
 		TestCases:     testCases,
 		CommandRunner: &LocalCmdRunner{},
+		Logger:        slog.New(slog.NewTextHandler(io.Discard, &slog.HandlerOptions{})),
 	}
 
 	clean := func() {

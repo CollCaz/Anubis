@@ -2,7 +2,9 @@ package Anubis
 
 import (
 	"bufio"
+	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 )
@@ -14,6 +16,7 @@ type Submission struct {
 	CodeFile      string
 	TestCases     TestCases
 	CommandRunner CommandRunner
+	Logger        *slog.Logger
 }
 
 type SubmissionOut struct {
@@ -27,10 +30,12 @@ func (s *Submission) CheckAll() (SubmissionOut, error) {
 	currentTest := 0
 	for in, out := range s.TestCases {
 		currentTest++
+		s.Logger.Info(fmt.Sprintf("Staring test %d", currentTest))
 		inFile, err := os.Open(in)
 		defer inFile.Close()
 
 		if err != nil {
+			s.Logger.Error(fmt.Sprintf("Error opening the input file for test %d: %s", currentTest, err.Error()))
 			return SubmissionOut{Status: "FailedOpeningInput", FailedOn: currentTest}, err
 		}
 

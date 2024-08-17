@@ -1,38 +1,63 @@
 package Anubis
 
-import "log"
+import (
+	"context"
+	"log/slog"
+)
 
 type Anubis struct {
-	logger        *log.Logger
+	Logger        *slog.Logger
 	CommandRunner CommandRunner
 }
 
 type AnubisConfig struct {
-	logger        *log.Logger
+	Logger        *slog.Logger
 	CommandRunner CommandRunner
 }
 
 func NewAnubis(ac AnubisConfig) Anubis {
 	a := Anubis{}
-	if ac.logger == nil {
-		ac.logger = &log.Logger{}
+	if ac.Logger == nil {
+		ac.Logger = &slog.Logger{}
 	}
 	if ac.CommandRunner == nil {
 		ac.CommandRunner = &LocalCmdRunner{}
 	}
 
-	a.logger = ac.logger
+	a.Logger = ac.Logger
 	a.CommandRunner = ac.CommandRunner
 
 	return a
 }
 
 func (a Anubis) NewSubmission(codeFilePath string, testCases TestCases) Submission {
+	if a.Logger == nil {
+		a.Logger = slog.New(&noopLogHandler{})
+	}
 	so := Submission{
 		CodeFile:      codeFilePath,
 		TestCases:     testCases,
 		CommandRunner: a.CommandRunner,
+		Logger:        a.Logger,
 	}
 
 	return so
+}
+
+type noopLogHandler struct{}
+
+func (n *noopLogHandler) Enabled(_ context.Context, l slog.Level) bool {
+	return false
+}
+
+func (n *noopLogHandler) Handle(ctx context.Context, l slog.Record) error {
+	return nil
+}
+
+func (n *noopLogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &noopLogHandler{}
+}
+
+func (n *noopLogHandler) WithGroup(name string) slog.Handler {
+	return &noopLogHandler{}
 }
