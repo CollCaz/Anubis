@@ -19,6 +19,15 @@ type Submission struct {
 	Logger        *slog.Logger
 }
 
+type SubmissionStatus int
+
+const (
+	AC SubmissionStatus = iota
+	CompileError
+	RunTimeError
+	Failed
+)
+
 type SubmissionOut struct {
 	Status string
 	// 0 if no failure, otherwise the first failed test case
