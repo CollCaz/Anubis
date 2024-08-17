@@ -38,9 +38,9 @@ type SubmissionOut struct {
 
 func (s *Submission) CheckAll() (SubmissionOut, error) {
 	currentTest := 0
+	so := SubmissionOut{}
 	for in, out := range s.TestCases {
 		currentTest++
-		s.Logger.Info(fmt.Sprintf("Staring test %d", currentTest))
 		inFile, err := os.Open(in)
 		defer inFile.Close()
 
@@ -53,12 +53,16 @@ func (s *Submission) CheckAll() (SubmissionOut, error) {
 		defer outFile.Close()
 
 		if err != nil {
+			s.Logger.Error(fmt.Sprintf("Error opening the output file for test %d: %s", currentTest, err.Error()))
 			return SubmissionOut{Status: "FailedOpeningOutput", FailedOn: currentTest}, err
 		}
 
 		s.CommandRunner.SetInput(inFile)
-		rr, err := Run(s.CodeFile, s.CommandRunner)
+		rr, err := Run(s.CodeFile, s.CommandRunner, s.Logger)
 		if err != nil {
+			if rr.ExitStatus != 0 {
+
+			}
 			return SubmissionOut{Status: "FailedRunningCode", FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 		}
 		actualOutput := rr.StdOut
@@ -66,7 +70,7 @@ func (s *Submission) CheckAll() (SubmissionOut, error) {
 			return SubmissionOut{Status: "Failed", FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 		}
 	}
-	so := SubmissionOut{Status: "AC"}
+	so.Status = "AC"
 	return so, nil
 }
 

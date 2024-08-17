@@ -3,6 +3,7 @@ package Anubis
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"testing"
@@ -50,7 +51,7 @@ func TestLocalRunner(t *testing.T) {
 	require.Nil(t, err)
 
 	in, err := os.Open(inputFileName)
-	rr, err := Run(filename, &LocalCmdRunner{Input: in})
+	rr, err := Run(filename, &LocalCmdRunner{Input: in}, slog.New(&noopLogHandler{}))
 	fmt.Println(rr.StdErr)
 	require.Nil(t, err)
 

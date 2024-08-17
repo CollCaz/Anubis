@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 )
@@ -75,10 +76,10 @@ func (rr *RunOutput) String() string {
 
 type CodeRunner func(codeFile string, commandRunner CommandRunner) (RunOutput, error)
 
-func Run(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
+func Run(codeFile string, commandRunner CommandRunner, logger *slog.Logger) (RunOutput, error) {
 	progLang, err := GetProgLang(codeFile)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
 		return RunOutput{}, err
 	}
 	return progLang.Runner(codeFile, commandRunner)

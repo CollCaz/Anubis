@@ -3,6 +3,7 @@ package Anubis
 import (
 	"bytes"
 	"io"
+	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -37,7 +38,7 @@ func TestAddProgLang(t *testing.T) {
 	AddProgLang("Java", "java", javaRunner)
 
 	fileName := "HelloWorld.java"
-	rr, err := Run(fileName, &LocalCmdRunner{})
+	rr, err := Run(fileName, &LocalCmdRunner{}, slog.New(&noopLogHandler{}))
 	require.Nil(t, err)
 	stdout, err := io.ReadAll(rr.StdOut)
 	require.Nil(t, err)
