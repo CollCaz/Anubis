@@ -32,7 +32,8 @@ type SubmissionOut struct {
 	Status string
 	// 0 if no failure, otherwise the first failed test case
 	FailedOn int
-	Output   io.Reader
+	StdOut   io.Reader
+	StdErr   io.Reader
 }
 
 func (s *Submission) CheckAll() (SubmissionOut, error) {
@@ -58,11 +59,11 @@ func (s *Submission) CheckAll() (SubmissionOut, error) {
 		s.CommandRunner.SetInput(inFile)
 		rr, err := Run(s.CodeFile, s.CommandRunner)
 		if err != nil {
-			return SubmissionOut{Status: "FailedRunningCode", FailedOn: currentTest, Output: rr.StdErr}, err
+			return SubmissionOut{Status: "FailedRunningCode", FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 		}
 		actualOutput := rr.StdOut
 		if !checkCase(outFile, actualOutput) {
-			return SubmissionOut{Status: "Failed", FailedOn: currentTest, Output: rr.StdOut}, err
+			return SubmissionOut{Status: "Failed", FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 		}
 	}
 	so := SubmissionOut{Status: "AC"}
