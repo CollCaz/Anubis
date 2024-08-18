@@ -137,3 +137,10 @@ func PythonRunner(codeFile string, commandRunner CommandRunner) (RunOutput, erro
 	rr, err := commandRunner.RunCommand(command)
 	return rr, err
 }
+
+func LuaRunner(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
+	app := "lua"
+	command := exec.Command(app, codeFile)
+	rr, err := commandRunner.RunCommand(command)
+	return rr, err
+}
