@@ -9,7 +9,7 @@ Anubis is a library for securely running and automatically judging competitive p
 ## Installation
 
 ```bash
-go get -u githib.com/collcaz/anubis
+go get -u github.com/collcaz/anubis
 ```
     
 ## Features
