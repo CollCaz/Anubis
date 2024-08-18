@@ -26,10 +26,11 @@ const (
 	CompileError
 	RunTimeError
 	Failed
+	InternalError
 )
 
 type SubmissionOut struct {
-	Status string
+	Status SubmissionStatus
 	// 0 if no failure, otherwise the first failed test case
 	FailedOn int
 	StdOut   io.Reader
@@ -46,7 +47,7 @@ func (s *Submission) CheckAll() (SubmissionOut, error) {
 
 		if err != nil {
 			s.Logger.Error(fmt.Sprintf("Error opening the input file for test %d: %s", currentTest, err.Error()))
-			return SubmissionOut{Status: "FailedOpeningInput", FailedOn: currentTest}, err
+			return SubmissionOut{Status: InternalError, FailedOn: currentTest}, err
 		}
 
 		outFile, err := os.Open(out)
@@ -54,23 +55,23 @@ func (s *Submission) CheckAll() (SubmissionOut, error) {
 
 		if err != nil {
 			s.Logger.Error(fmt.Sprintf("Error opening the output file for test %d: %s", currentTest, err.Error()))
-			return SubmissionOut{Status: "FailedOpeningOutput", FailedOn: currentTest}, err
+			return SubmissionOut{Status: InternalError, FailedOn: currentTest}, err
 		}
 
 		s.CommandRunner.SetInput(inFile)
 		rr, err := Run(s.CodeFile, s.CommandRunner, s.Logger)
 		if err != nil {
 			if rr.ExitStatus != 0 {
-
+				return SubmissionOut{Status: RunTimeError, FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 			}
-			return SubmissionOut{Status: "FailedRunningCode", FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
+			return SubmissionOut{Status: InternalError, FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 		}
 		actualOutput := rr.StdOut
 		if !checkCase(outFile, actualOutput) {
-			return SubmissionOut{Status: "Failed", FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
+			return SubmissionOut{Status: Failed, FailedOn: currentTest, StdOut: rr.StdOut, StdErr: rr.StdErr}, err
 		}
 	}
-	so.Status = "AC"
+	so.Status = AC
 	return so, nil
 }
 

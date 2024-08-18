@@ -58,7 +58,7 @@ func TestCheckAllPass(t *testing.T) {
 	sub.CodeFile = codeName
 	subOut, err := sub.CheckAll()
 	require.Nil(t, err)
-	require.Equal(t, "AC", subOut.Status)
+	require.Equal(t, AC, subOut.Status)
 
 	t.Cleanup(clean)
 }
@@ -77,7 +77,7 @@ func TestCheckAllFail(t *testing.T) {
 	sub.CodeFile = codeName
 	subOut, err := sub.CheckAll()
 	require.Nil(t, err, err)
-	require.Equal(t, "Failed", subOut.Status)
+	require.Equal(t, Failed, subOut.Status)
 
 	t.Cleanup(clean)
 }
