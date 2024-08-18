@@ -34,14 +34,9 @@ func TestLocalCommandRunner(t *testing.T) {
 
 func TestLocalIsolateRunner(t *testing.T) {
 	t.Parallel()
-	//fixme: find a better way of giving isolate
-	// the full path to files
 	dir, err := os.UserHomeDir()
 	require.Nil(t, err, err)
 	fileName := fmt.Sprintf("%s/test.txt", dir)
-
-	fmt.Println("FIX THIS")
-	t.FailNow()
 
 	file, err := os.Create(fileName)
 	defer os.Remove(fileName)
