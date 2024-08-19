@@ -10,6 +10,7 @@ import (
 )
 
 // maps test input files with their expected output files
+type LineChecker func(expectedLine, actualLine string, lineNumber int) (bool, int)
 type TestCases map[string]string
 
 type Submission struct {
