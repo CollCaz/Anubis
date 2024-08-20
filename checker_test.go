@@ -13,7 +13,9 @@ import (
 // creates a submission struct for the problem of
 // multiplying the inputs by 2
 func createSubmission(t *testing.T) (Submission, func()) {
-	testCases := make(TestCases)
+	testCases := TestCases{
+		InputOutput: make(map[string]string),
+	}
 	for i := 0; i < 10; i++ {
 		fileIn := fmt.Sprintf("%sin%d", t.TempDir(), i)
 		inFile, err := os.Create(fileIn)
@@ -22,7 +24,7 @@ func createSubmission(t *testing.T) (Submission, func()) {
 		outFile, err := os.Create(fileOut)
 		require.Nil(t, err)
 		os.Create(fileOut)
-		testCases[fileIn] = fileOut
+		testCases.InputOutput[fileIn] = fileOut
 
 		inFile.WriteString(fmt.Sprintf("%d %d %d %d", i, i+1, i+2, i+3))
 		outFile.WriteString(fmt.Sprintf("%d %d %d %d", i*2, (i+1)*2, (i+2)*2, (i+3)*2))
@@ -35,7 +37,7 @@ func createSubmission(t *testing.T) (Submission, func()) {
 	}
 
 	clean := func() {
-		for in, out := range testCases {
+		for in, out := range testCases.InputOutput {
 			os.Remove(in)
 			os.Remove(out)
 		}

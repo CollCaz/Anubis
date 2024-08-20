@@ -11,7 +11,11 @@ import (
 
 // maps test input files with their expected output files
 type LineChecker func(expectedLine, actualLine string, lineNumber int) (bool, int)
-type TestCases map[string]string
+
+type TestCases struct {
+	InputOutput map[string]string
+	LineChecker LineChecker
+}
 
 type Submission struct {
 	CodeFile      string
@@ -41,7 +45,7 @@ type SubmissionOut struct {
 func (s *Submission) CheckAll() (SubmissionOut, error) {
 	currentTest := 0
 	so := SubmissionOut{}
-	for in, out := range s.TestCases {
+	for in, out := range s.TestCases.InputOutput {
 		currentTest++
 		inFile, err := os.Open(in)
 		defer inFile.Close()
