@@ -23,6 +23,8 @@ go.work.sum
 
 # env file
 .env
+.envrc
+.direnv
 
 # gomod2nix
 /gomod2nix-template
