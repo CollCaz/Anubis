@@ -1,4 +1,4 @@
-{ pkgs ? (
+{ lib, pkgs ? (
     let
       inherit (builtins) fetchTree fromJSON readFile;
       inherit ((fromJSON (readFile ./flake.lock)).nodes) nixpkgs gomod2nix;
@@ -20,5 +20,7 @@ pkgs.mkShell {
   packages = [
     goEnv
     gomod2nix
+    pkgs.nsjail
   ];
+  PYTHON_PATH = "${pkgs.python3}/bin/python3";
 }

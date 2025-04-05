@@ -16,7 +16,7 @@ var supportedFileTypes = map[string]ProgLang{
 	"c":   {Name: "C"},
 	"cpp": {Name: "C++"},
 	"py":  {Name: "Python", Runner: PythonRunner},
-	"lua": {Name: "Lua", Runner: LuaRunner},
+	// "lua": {Name: "Lua", Runner: LuaRunner},
 }
 
 func GetProgLang(filePath string) (ProgLang, error) {

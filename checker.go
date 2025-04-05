@@ -18,7 +18,7 @@ type TestCases struct {
 }
 
 type Submission struct {
-	CodeFile      string
+	CodeFile      *os.File
 	TestCases     TestCases
 	CommandRunner CommandRunner
 	Logger        *slog.Logger

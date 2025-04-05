@@ -3,6 +3,7 @@ package Anubis
 import (
 	"context"
 	"log/slog"
+	"os"
 )
 
 type Anubis struct {
@@ -30,12 +31,12 @@ func NewAnubis(ac AnubisConfig) Anubis {
 	return a
 }
 
-func (a *Anubis) NewSubmission(codeFilePath string, testCases TestCases) Submission {
+func (a *Anubis) NewSubmission(codeFile *os.File, testCases TestCases) Submission {
 	if a.Logger == nil {
 		a.Logger = slog.New(&noopLogHandler{})
 	}
 	so := Submission{
-		CodeFile:      codeFilePath,
+		CodeFile:      codeFile,
 		TestCases:     testCases,
 		CommandRunner: a.CommandRunner,
 		Logger:        a.Logger,

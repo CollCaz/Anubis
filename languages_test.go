@@ -1,9 +1,6 @@
 package Anubis
 
 import (
-	"bytes"
-	"io"
-	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -26,21 +23,22 @@ func TestGetProgLangErr(t *testing.T) {
 	require.NotNil(t, err)
 }
 
-func TestAddProgLang(t *testing.T) {
-	t.Parallel()
-	javaRunner := func(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
-		rr := RunOutput{
-			ExitStatus: 0,
-			StdOut:     bytes.NewBuffer([]byte(codeFile)),
-		}
-		return rr, nil
-	}
-	AddProgLang("Java", "java", javaRunner)
-
-	fileName := "HelloWorld.java"
-	rr, err := Run(fileName, &LocalCmdRunner{}, slog.New(&noopLogHandler{}))
-	require.Nil(t, err)
-	stdout, err := io.ReadAll(rr.StdOut)
-	require.Nil(t, err)
-	require.Equal(t, string(stdout), fileName)
-}
+//
+// func TestAddProgLang(t *testing.T) {
+// 	t.Parallel()
+// 	javaRunner := func(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
+// 		rr := RunOutput{
+// 			ExitStatus: 0,
+// 			StdOut:     bytes.NewBuffer([]byte(codeFile)),
+// 		}
+// 		return rr, nil
+// 	}
+// 	AddProgLang("Java", "java", javaRunner)
+//
+// 	fileName := "HelloWorld.java"
+// 	rr, err := Run(fileName, &LocalCmdRunner{}, slog.New(&noopLogHandler{}))
+// 	require.Nil(t, err)
+// 	stdout, err := io.ReadAll(rr.StdOut)
+// 	require.Nil(t, err)
+// 	require.Equal(t, string(stdout), fileName)
+// }

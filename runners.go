@@ -56,6 +56,49 @@ type LocalIsolateRunner struct {
 	Input *os.File
 }
 
+type LocalNsjailRunner struct {
+	Input *os.File
+}
+
+func (lnr *LocalNsjailRunner) SetInput(file *os.File) {
+	lnr.Input = file
+}
+
+func (lnr *LocalNsjailRunner) RunCommand(command *exec.Cmd) (RunOutput, error) {
+	nsjailCommand := exec.Command(
+		"nsjail",
+		"-Mo",
+		"--log_fd",
+		"3",
+		"--chroot",
+		"/",
+		"--execute_fd",
+	)
+	nsjailCommand.Args = append(nsjailCommand.Args, command.Args...)
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	rr := RunOutput{
+		ExitStatus: 0,
+		StdOut:     &stdout,
+		StdErr:     &stderr,
+	}
+	nsjailCommand.Stdin = lnr.Input
+	nsjailCommand.Stdout = &stdout
+	nsjailCommand.Stderr = &stderr
+	err := nsjailCommand.Run()
+	if err != nil {
+		var exitError *exec.ExitError
+		if errors.As(err, &exitError) {
+			rr.ExitStatus = nsjailCommand.ProcessState.ExitCode()
+		}
+		fmt.Println(err.Error())
+		return rr, err
+	}
+
+	return rr, nil
+}
+
 func (lir *LocalIsolateRunner) SetInput(file *os.File) {
 	lir.Input = file
 }
@@ -88,7 +131,6 @@ func (lir *LocalIsolateRunner) RunCommand(command *exec.Cmd) (RunOutput, error) 
 		var exitError *exec.ExitError
 		if errors.As(err, &exitError) {
 			rr.ExitStatus = command.ProcessState.ExitCode()
-			return rr, err
 		}
 		return rr, err
 	}
@@ -120,10 +162,10 @@ func (rr *RunOutput) String() string {
 	return s
 }
 
-type CodeRunner func(codeFile string, commandRunner CommandRunner) (RunOutput, error)
+type CodeRunner func(codeFile *os.File, commandRunner CommandRunner) (RunOutput, error)
 
-func Run(codeFile string, commandRunner CommandRunner, logger *slog.Logger) (RunOutput, error) {
-	progLang, err := GetProgLang(codeFile)
+func Run(codeFile *os.File, commandRunner CommandRunner, logger *slog.Logger) (RunOutput, error) {
+	progLang, err := GetProgLang(codeFile.Name())
 	if err != nil {
 		logger.Error(err.Error())
 		return RunOutput{}, err
@@ -131,9 +173,12 @@ func Run(codeFile string, commandRunner CommandRunner, logger *slog.Logger) (Run
 	return progLang.Runner(codeFile, commandRunner)
 }
 
-func PythonRunner(codeFile string, commandRunner CommandRunner) (RunOutput, error) {
-	app := "python3"
-	command := exec.Command(app, codeFile)
+func PythonRunner(codeFile *os.File, commandRunner CommandRunner) (RunOutput, error) {
+	app := os.Getenv("PYTHON_PATH")
+	if app == "" {
+		app = "python3"
+	}
+	command := exec.Command(app, codeFile.Name())
 	rr, err := commandRunner.RunCommand(command)
 	return rr, err
 }
